@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Reference Include="System.Net.Http" />
     <PackageReference Include="HomeSeer-PluginSDK" Version="1.5.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
