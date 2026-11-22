@@ -106,7 +106,19 @@ try {
     }
 
     Write-Log "Copying plugin output to $hsRoot"
-    Copy-Item (Join-Path $outputDir "*") -Destination $hsRoot -Recurse -Force
+    $filesToCopy = @(
+        "HSPI_RoborockBridge.exe",
+        "HSPI_RoborockBridge.pdb",
+        "HSPI_RoborockBridge.exe.config",
+        "Newtonsoft.Json.dll"
+    )
+
+    foreach ($fileName in $filesToCopy) {
+        $source = Join-Path $outputDir $fileName
+        if (Test-Path $source) {
+            Copy-Item $source -Destination (Join-Path $hsRoot $fileName) -Force
+        }
+    }
 
     Write-Log "Deployment complete"
     exit 0
