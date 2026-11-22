@@ -121,8 +121,8 @@ try {
                 Copy-Item $source -Destination (Join-Path $hsRoot $fileName) -Force
             }
             catch {
-                if ($fileName -eq "Newtonsoft.Json.dll") {
-                    Write-Log "Skipping locked shared dependency: Newtonsoft.Json.dll"
+                if ($fileName -eq "Newtonsoft.Json.dll" -or $fileName -eq "PluginSdk.dll") {
+                    Write-Log "Skipping locked shared dependency: $fileName"
                     continue
                 }
 
