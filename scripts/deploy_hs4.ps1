@@ -9,6 +9,20 @@ function Write-Log {
     $line | Tee-Object -FilePath $logPath -Append
 }
 
+function Invoke-Checked {
+    param(
+        [string]$Label,
+        [string]$FilePath,
+        [string[]]$Arguments
+    )
+
+    Write-Log "$Label"
+    & $FilePath @Arguments
+    if ($LASTEXITCODE -ne 0) {
+        throw "$Label failed with exit code $LASTEXITCODE"
+    }
+}
+
 function Find-Git {
     $candidates = @(
         "C:\Program Files\Git\bin\git.exe",
@@ -73,20 +87,18 @@ Write-Log "Using git: $git"
 Write-Log "Using dotnet: $dotnet"
 Write-Log "Detected HomeSeer root: $hsRoot"
 
-& $git fetch --all --prune
-& $git checkout main
-& $git pull origin main
+Invoke-Checked -Label "Git fetch" -FilePath $git -Arguments @("fetch", "--all", "--prune")
+Invoke-Checked -Label "Git checkout main" -FilePath $git -Arguments @("checkout", "main")
+Invoke-Checked -Label "Git pull origin main" -FilePath $git -Arguments @("pull", "origin", "main")
 
 $projectPath = Join-Path $repoRoot "hs4-plugin\HSPI_RoborockBridge\HSPI_RoborockBridge.csproj"
 if (!(Test-Path $projectPath)) {
     throw "Project file not found: $projectPath"
 }
 
-Write-Log "Restoring plugin project"
-& $dotnet restore $projectPath
+Invoke-Checked -Label "Restoring plugin project" -FilePath $dotnet -Arguments @("restore", $projectPath)
 
-Write-Log "Building plugin project"
-& $dotnet build $projectPath -c Release --no-restore
+Invoke-Checked -Label "Building plugin project" -FilePath $dotnet -Arguments @("build", $projectPath, "-c", "Release", "--no-restore")
 
 $outputDir = Join-Path $repoRoot "hs4-plugin\HSPI_RoborockBridge\bin\Release\net48"
 if (!(Test-Path $outputDir)) {
