@@ -77,36 +77,41 @@ if (Test-Path $logPath) {
     Remove-Item $logPath -Force
 }
 
-Write-Log "Starting deployment from $repoRoot"
+try {
+    Write-Log "Starting deployment from $repoRoot"
 
-$git = Find-Git
-$dotnet = Find-Dotnet
-$hsRoot = Find-HomeSeerRoot
+    $git = Find-Git
+    $dotnet = Find-Dotnet
+    $hsRoot = Find-HomeSeerRoot
 
-Write-Log "Using git: $git"
-Write-Log "Using dotnet: $dotnet"
-Write-Log "Detected HomeSeer root: $hsRoot"
+    Write-Log "Using git: $git"
+    Write-Log "Using dotnet: $dotnet"
+    Write-Log "Detected HomeSeer root: $hsRoot"
 
-Invoke-Checked -Label "Git fetch" -FilePath $git -Arguments @("fetch", "--all", "--prune")
-Invoke-Checked -Label "Git checkout main" -FilePath $git -Arguments @("checkout", "main")
-Invoke-Checked -Label "Git pull origin main" -FilePath $git -Arguments @("pull", "origin", "main")
+    Invoke-Checked -Label "Git fetch" -FilePath $git -Arguments @("fetch", "--all", "--prune")
+    Invoke-Checked -Label "Git checkout main" -FilePath $git -Arguments @("checkout", "main")
+    Invoke-Checked -Label "Git pull origin main" -FilePath $git -Arguments @("pull", "origin", "main")
 
-$projectPath = Join-Path $repoRoot "hs4-plugin\HSPI_RoborockBridge\HSPI_RoborockBridge.csproj"
-if (!(Test-Path $projectPath)) {
-    throw "Project file not found: $projectPath"
+    $projectPath = Join-Path $repoRoot "hs4-plugin\HSPI_RoborockBridge\HSPI_RoborockBridge.csproj"
+    if (!(Test-Path $projectPath)) {
+        throw "Project file not found: $projectPath"
+    }
+
+    Invoke-Checked -Label "Restoring plugin project" -FilePath $dotnet -Arguments @("restore", $projectPath)
+    Invoke-Checked -Label "Building plugin project" -FilePath $dotnet -Arguments @("build", $projectPath, "-c", "Release", "--no-restore")
+
+    $outputDir = Join-Path $repoRoot "hs4-plugin\HSPI_RoborockBridge\bin\Release\net48"
+    if (!(Test-Path $outputDir)) {
+        throw "Build output folder not found: $outputDir"
+    }
+
+    Write-Log "Copying plugin output to $hsRoot"
+    Copy-Item (Join-Path $outputDir "*") -Destination $hsRoot -Recurse -Force
+
+    Write-Log "Deployment complete"
+    exit 0
 }
-
-Invoke-Checked -Label "Restoring plugin project" -FilePath $dotnet -Arguments @("restore", $projectPath)
-
-Invoke-Checked -Label "Building plugin project" -FilePath $dotnet -Arguments @("build", $projectPath, "-c", "Release", "--no-restore")
-
-$outputDir = Join-Path $repoRoot "hs4-plugin\HSPI_RoborockBridge\bin\Release\net48"
-if (!(Test-Path $outputDir)) {
-    throw "Build output folder not found: $outputDir"
+catch {
+    Write-Log ("Deployment failed: " + $_.Exception.Message)
+    exit 1
 }
-
-Write-Log "Copying plugin output to $hsRoot"
-Copy-Item (Join-Path $outputDir "*") -Destination $hsRoot -Recurse -Force
-
-Write-Log "Deployment complete"
-exit 0
