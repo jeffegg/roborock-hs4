@@ -27,12 +27,18 @@ function Find-Git {
 }
 
 function Find-Dotnet {
-    $dotnet = "C:\Program Files\dotnet\dotnet.exe"
-    if (Test-Path $dotnet) {
-        return $dotnet
+    $candidates = @(
+        "C:\Program Files\dotnet\dotnet.exe",
+        "C:\dotnet\dotnet.exe"
+    )
+
+    foreach ($dotnet in $candidates) {
+        if (Test-Path $dotnet) {
+            return $dotnet
+        }
     }
 
-    throw "dotnet SDK not found at C:\Program Files\dotnet\dotnet.exe"
+    throw "dotnet SDK not found in standard deployment paths."
 }
 
 function Find-HomeSeerRoot {
