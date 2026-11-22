@@ -19,11 +19,11 @@ namespace HSPI_RoborockBridge.Actions {
             "dock"
         };
 
-        protected RoborockCommandAction(int id, int eventRef, byte[] dataIn, ActionTypeCollection.IActionTypeListener listener)
+        public RoborockCommandAction(int id, int eventRef, byte[] dataIn, ActionTypeCollection.IActionTypeListener listener)
             : base(id, eventRef, dataIn, listener) {
         }
 
-        protected RoborockCommandAction() {
+        public RoborockCommandAction() {
         }
 
         protected override string GetName() => "Roborock command";
