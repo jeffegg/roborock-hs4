@@ -117,7 +117,17 @@ try {
     foreach ($fileName in $filesToCopy) {
         $source = Join-Path $outputDir $fileName
         if (Test-Path $source) {
-            Copy-Item $source -Destination (Join-Path $hsRoot $fileName) -Force
+            try {
+                Copy-Item $source -Destination (Join-Path $hsRoot $fileName) -Force
+            }
+            catch {
+                if ($fileName -eq "Newtonsoft.Json.dll") {
+                    Write-Log "Skipping locked shared dependency: Newtonsoft.Json.dll"
+                    continue
+                }
+
+                throw
+            }
         }
     }
 
