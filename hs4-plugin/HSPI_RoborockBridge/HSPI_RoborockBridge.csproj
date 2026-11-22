@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HomeSeer-PluginSDK" Version="4.2.23" />
+    <PackageReference Include="HomeSeer-PluginSDK" Version="1.5.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 </Project>
