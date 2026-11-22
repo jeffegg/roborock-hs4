@@ -110,7 +110,8 @@ try {
         "HSPI_RoborockBridge.exe",
         "HSPI_RoborockBridge.pdb",
         "HSPI_RoborockBridge.exe.config",
-        "Newtonsoft.Json.dll"
+        "Newtonsoft.Json.dll",
+        "PluginSdk.dll"
     )
 
     foreach ($fileName in $filesToCopy) {
