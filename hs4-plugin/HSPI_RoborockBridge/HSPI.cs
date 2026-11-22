@@ -34,11 +34,7 @@ namespace HSPI_RoborockBridge {
         }
 
         protected override void BeforeReturnStatus() {
-            if (string.IsNullOrWhiteSpace(GetTextSetting(BridgeUrlViewId, string.Empty))) {
-                Status = PluginStatus.Warn("Bridge URL is not configured.");
-                return;
-            }
-
+            // Keep plugin healthy even when bridge settings are incomplete.
             Status = PluginStatus.Ok();
         }
 
