@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  python-syntax:
+    name: Python syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile Python sources
+        run: python -m compileall -q src
+
+  hs4-plugin-build:
+    name: HS4 plugin build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore plugin project
+        run: dotnet restore hs4-plugin/HSPI_RoborockBridge/HSPI_RoborockBridge.csproj
+
+      - name: Build plugin project
+        run: dotnet build hs4-plugin/HSPI_RoborockBridge/HSPI_RoborockBridge.csproj -c Release --no-restore
